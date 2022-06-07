@@ -232,6 +232,14 @@ const docs = [
         componentEn: () => import('@/examples/form/form.en-US.md'),
       },
       {
+        title: 'InputAdornment 输入装饰器',
+        titleEn: 'InputAdornment',
+        name: 'input-adornment',
+        path: '/vue/components/input-adornment',
+        component: () => import('@/examples/input-adornment/input-adornment.md'),
+        componentEn: () => import('@/examples/input-adornment/input-adornment.en-US.md'),
+      },
+      {
         title: 'Input 输入框',
         titleEn: 'Input',
         name: 'input',
