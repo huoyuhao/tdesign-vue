@@ -62,6 +62,10 @@ export default mixins(ActionMixin, getConfigReceiverMixins<Vue, DialogConfig>('d
     isModeLess(): boolean {
       return this.mode === 'modeless';
     },
+    // 是否普通对话框，没有脱离文档流的对话框
+    isNormal(): boolean {
+      return this.mode === 'normal';
+    },
     maskClass(): ClassName {
       return [`${name}__mask`, !this.showOverlay && `${prefix}-is-hidden`];
     },
@@ -70,10 +74,15 @@ export default mixins(ActionMixin, getConfigReceiverMixins<Vue, DialogConfig>('d
       return dialogClass;
     },
     positionClass(): ClassName {
+      if (this.isNormal) return [];
       const dialogClass = [`${name}__position`, !!this.top && `${name}--top`, `${this.placement && !this.top ? `${name}--${this.placement}` : ''}`];
       return dialogClass;
     },
+    wrapClass(): ClassName {
+      return [!this.isNormal && `${name}__wrap`];
+    },
 
+// `${name}__wrap` wrapClass
     positionStyle(): Styles {
       const topStyle = {} as Styles;
 
@@ -160,6 +169,8 @@ export default mixins(ActionMixin, getConfigReceiverMixins<Vue, DialogConfig>('d
     overlayAction(e: MouseEvent) {
       // 如果不是modal模式 默认没有mask 也就没有相关点击事件
       if (this.mode !== 'modal') return;
+      console.log(1111);
+      e.stopPropagation();
       emitEvent<Parameters<TdDialogProps['onOverlayClick']>>(this, 'overlay-click', { e });
       // 根据closeOnClickOverlay判断点击蒙层时是否触发close事件
       if (this.closeOnOverlayClick) {
@@ -311,12 +322,11 @@ export default mixins(ActionMixin, getConfigReceiverMixins<Vue, DialogConfig>('d
       );
       const bodyClassName = this.theme === 'default' ? `${name}__body` : `${name}__body__icon`;
       // 此处获取定位方式 top 优先级较高 存在时 默认使用top定位
-
       return (
         // /* 非模态形态下draggable为true才允许拖拽 */
-        <div class={`${name}__wrap`} onClick={this.overlayAction} >
+        <div class={this.wrapClass} onClick={this.overlayAction}>
           <div class={this.positionClass} style={this.positionStyle}>
-            <div key="dialog" ref="dialog" class={this.dialogClass} style={this.dialogStyle}>
+            <div key="dialog" ref="dialog" class={this.dialogClass} style={this.dialogStyle} onClick={(e: MouseEvent) => e.stopPropagation()}>
               <div class={`${name}__header`}>
                 {this.getIcon()}
                 {renderTNodeJSX(this, 'header', defaultHeader)}
